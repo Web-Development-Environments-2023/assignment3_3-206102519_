@@ -1,29 +1,55 @@
 <template>
-  <router-link
-    :to="{ name: 'recipe', params: { recipeId: recipe.id } }"
-    class="recipe-preview"
-  >
-    <div class="recipe-body">
-      <img v-if="image_load" :src="recipe.image" class="recipe-image" />
-    </div>
-    <div class="recipe-footer">
-      <div :title="recipe.title" class="recipe-title">
-        {{ recipe.title }}
-      </div>
-      <ul class="recipe-overview">
-        <li>{{ recipe.readyInMinutes }} minutes</li>
-        <li>{{ recipe.aggregateLikes }} likes</li>
-      </ul>
-    </div>
-  </router-link>
+  <b-card no-body class="RecipePreview zoom">
+    <b-row no-gutters class="RecipeBody">
+      <b-col>
+
+        <router-link :to="{ name: name, params: { recipeId: recipe.id,favorite:recipe.favorite } }">
+            <b-card-img :src="recipe.image" alt="Image" class="RecipeImage" ></b-card-img>
+        </router-link>
+        <router-link :to="{ name: name, params: { recipeId: recipe.id,favorite:recipe.favorite } }">
+           <b-card-title  class="RecipeTitle">{{shortenTitle(recipe.title)}}</b-card-title>
+        </router-link>
+            <div>
+              <watchedFavoriteData class="text-left" style="margin-right: 15%"
+                                    :id="parseInt(this.recipe.id)"
+                                    :watched="this.recipe.watched"
+                                    :favorite="this.recipe.favorite">
+              </watchedFavoriteData>
+            <b-icon v-if="recipe.readyInMinutes" icon="clock" style="width: 15px; height: 15px;"></b-icon>
+            <a style="margin-right: 10px; margin-bottom: 15px;">  {{ recipe.readyInMinutes }} minutes</a>
+            <b-icon v-if="recipe.popularity>-1" icon="heart" style="width: 15px; height: 15px;"></b-icon>
+            <a style="margin-right: 10px; margin-bottom: 15px;"> {{ recipe.popularity }}</a>
+          </div>
+           <div id="badge">
+            <b-badge style="margin-top: 5px; margin-right: 5px" v-if="recipe.vegan" variant="success">Vegan</b-badge>
+            <b-badge style="margin-top: 5px;margin-right: 5px" v-if="recipe.vegetarian" variant="success">Vegetarian</b-badge>
+            <b-badge style="margin-top: 5px;margin-right: 5px" v-if="recipe.glutenFree" variant="success">Gluten free</b-badge>
+             <b-badge style="margin-top: 10px;margin-right: 5px" v-else variant="warning">Have Gluten</b-badge>
+           </div>
+      </b-col>
+    </b-row>
+  </b-card>
 </template>
 
 <script>
+import watchedFavoriteData from "./watchedFavoriteData.vue";
 export default {
+  components: {
+   watchedFavoriteData
+  },
   mounted() {
     this.axios.get(this.recipe.image).then((i) => {
       this.image_load = true;
     });
+  },
+  methods: {
+    shortenTitle(title) {
+      if (title.length <= 20) {
+        return title;
+      } else {
+        return title.substring(0, 20) + '...';
+      }
+    }
   },
   data() {
     return {
@@ -34,108 +60,64 @@ export default {
     recipe: {
       type: Object,
       required: true
-    }
+    },
+    name:{
+      type:String,
+      required:true
 
-    // id: {
-    //   type: Number,
-    //   required: true
-    // },
-    // title: {
-    //   type: String,
-    //   required: true
-    // },
-    // readyInMinutes: {
-    //   type: Number,
-    //   required: true
-    // },
-    // image: {
-    //   type: String,
-    //   required: true
-    // },
-    // aggregateLikes: {
-    //   type: Number,
-    //   required: false,
-    //   default() {
-    //     return undefined;
-    //   }
-    // }
-  }
-};
+    },
+    
+  },
+}
 </script>
 
 <style scoped>
-.recipe-preview {
-  display: inline-block;
-  width: 90%;
-  height: 100%;
-  position: relative;
-  margin: 10px 10px;
-}
-.recipe-preview > .recipe-body {
+.RecipePreview {
+  padding-bottom: 10px;
   width: 100%;
-  height: 200px;
-  position: relative;
-}
+  height: 330px;
+  border-radius: 15px;
+  box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  margin-bottom: 10px;
 
-.recipe-preview .recipe-body .recipe-image {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: auto;
-  margin-bottom: auto;
-  display: block;
-  width: 98%;
-  height: auto;
+}
+.RecipeBody .RecipeImage {
+  border-radius: 15px;
+  object-fit: cover;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   background-size: cover;
+  background-position: center;
+  min-width: 100%;
+  height: 70%;
+    max-height: 200px;
 }
 
-.recipe-preview .recipe-footer {
-  width: 100%;
-  height: 50%;
-  overflow: hidden;
+.RecipePreview .RecipeFooter {
+  /*text-align: center;*/
+  /*align-items: center;*/
+  font-size: 14px;
 }
 
-.recipe-preview .recipe-footer .recipe-title {
-  padding: 10px 10px;
-  width: 100%;
-  font-size: 12pt;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  -o-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-}
-
-.recipe-preview .recipe-footer ul.recipe-overview {
-  padding: 5px 10px;
-  width: 100%;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -o-box-flex: 1;
-  box-flex: 1;
-  -webkit-flex: 1 auto;
-  -ms-flex: 1 auto;
-  flex: 1 auto;
-  table-layout: fixed;
-  margin-bottom: 0px;
-}
-
-.recipe-preview .recipe-footer ul.recipe-overview li {
-  -webkit-box-flex: 1;
-  -moz-box-flex: 1;
-  -o-box-flex: 1;
-  -ms-box-flex: 1;
-  box-flex: 1;
-  -webkit-flex-grow: 1;
-  flex-grow: 1;
-  width: 90px;
-  display: table-cell;
+.RecipeBody .RecipeTitle {
+  padding-top: 10px;
+  width: 95%;
+  font-size: 18px;
   text-align: center;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+.zoom {
+    transition: transform .2s;
+    transform-origin: center;
+}
+.zoom:hover {
+    z-index: 4;
+    transform: scale(1.3);
+}
+#badge{
+    text-align: center;
 }
 </style>

@@ -2,9 +2,12 @@ import Vue from "vue";
 import App from "./App.vue";
 import VueAxios from "vue-axios";
 import axios from "axios";
-
 import routes from "./routes";
 import VueRouter from "vue-router";
+import VueCookies from 'vue-cookies';
+// axios.defaults.withCredentials = true;
+// Vue.use(VueCookies);
+
 Vue.use(VueRouter);
 const router = new VueRouter({
   routes,
@@ -14,6 +17,8 @@ import Vuelidate from "vuelidate";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap-vue/dist/bootstrap-vue.css";
 import {
+  BootstrapVue,
+  IconsPlugin,
   FormGroupPlugin,
   FormPlugin,
   FormInputPlugin,
@@ -26,6 +31,8 @@ import {
   LayoutPlugin,
 } from "bootstrap-vue";
 [
+  BootstrapVue,
+  IconsPlugin,
   FormGroupPlugin,
   FormPlugin,
   FormInputPlugin,
@@ -67,16 +74,21 @@ Vue.use(VueAxios, axios);
 Vue.config.productionTip = false;
 
 const shared_data = {
+  server_domain : "http://127.0.0.1:3000",
   username: localStorage.username,
-  login(username) {
+  LastSearchRecipes: [],
+  recipeAdded: false,
+  login: function(username) {
     localStorage.setItem("username", username);
     this.username = username;
+    this.LastSearchRecipes = [];
     console.log("login", this.username);
   },
   logout() {
     console.log("logout");
     localStorage.removeItem("username");
     this.username = undefined;
+    this.LastSearchRecipes = [];
   },
 };
 console.log(shared_data);
